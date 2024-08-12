@@ -1,0 +1,38 @@
+{
+    "products": {
+      "product1": {
+        "name": "Product 1",
+        "price": 19.99,
+        "imageUrl": "https://sanjay434343.github.io/Portfolio/av.jpg"
+      },
+      "product2": {
+        "name": "Product 2",
+        "price": 29.99,
+        "imageUrl": "https://sanjay434343.github.io/Portfolio/av.jpg"
+      },
+      "product3": {
+        "name": "Product 2",
+        "price": 29.99,
+        "imageUrl": "https://sanjay434343.github.io/Portfolio/av.jpg"
+      },
+      "product4": {
+        "name": "Product 2",
+        "price": 29.99,
+        "imageUrl": "https://sanjay434343.github.io/Portfolio/av.jpg"
+      },
+      "product5": {
+        "name": "Product 2",
+        "price": 29.99,
+        "imageUrl": "https://sanjay434343.github.io/Portfolio/av.jpg"
+      },
+      "product6": {
+        "name": "Product 2",
+        "price": 29.99,
+        "imageUrl": "https://sanjay434343.github.io/Portfolio/av.jpg"
+      }
+    }
+  }
+  
+
+
+  

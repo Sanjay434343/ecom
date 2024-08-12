@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eCommerce Home Screen</title>
+    <link rel="stylesheet" href="styles/index.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container bg-white">
+        <nav class="navbar navbar-expand-md navbar-light bg-white">
+            <div class="container-fluid p-0">
+                <a class="navbar-brand text-uppercase fw-800" href="#"><span class="border-red pe-2">New</span>Product</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#myNav" aria-controls="myNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="fas fa-bars"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="myNav">
+                    <div class="navbar-nav ms-auto">
+                        <a class="nav-link active" aria-current="page" href="#">All</a>
+                        <a class="nav-link" href="#">Watch</a>
+                        <a class="nav-link" href="#">Mobile Case</a>
+                        <a class="nav-link" href="#">Charger Wires</a>
+                        <a class="nav-link" href="#">Accessories</a>
+                        <a class="nav-link" href="../src/product_view.html"><i class="fas fa-shopping-cart"></i></a> <!-- Shopping Cart Icon -->
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="row" id="productContainer" style="margin-left: 10px; margin-right: 10px;">
+            <!-- Product cards will be dynamically added here -->
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyC3WxZBaNJoZA2p7oe6ihTJCFOE6Y0U_7Q",
+            authDomain: "dropshipping-98eb5.firebaseapp.com",
+            projectId: "dropshipping-98eb5",
+            storageBucket: "dropshipping-98eb5.appspot.com",
+            messagingSenderId: "904925867242",
+            appId: "1:904925867242:web:af0abda866826e92f8fb93",
+            measurementId: "G-BVZR8HY1SR"
+        };
+
+     
+
+firebase.initializeApp(firebaseConfig);
+
+// Reference to your Firebase database
+const database = firebase.database();
+
+// Function to fetch and display products from Firebase
+function displayProducts() {
+    const productContainer = document.getElementById('productContainer');
+
+    database.ref('products').once('value', (snapshot) => {
+        snapshot.forEach((childSnapshot) => {
+            const productData = childSnapshot.val();
+            const productId = childSnapshot.key;
+
+            // Create product card element
+            const productCard = document.createElement('div');
+            productCard.classList.add('col-lg-3', 'col-sm-6', 'd-flex', 'flex-column', 'align-items-center', 'justify-content-center', 'product-item', 'my-3');
+
+            // Product image
+            const productImage = document.createElement('img');
+            productImage.src = productData.imageUrl;
+            productImage.alt = productData.name;
+            productImage.classList.add('product-image'); // Added class for styling
+            productCard.appendChild(productImage);
+
+            // Icons (expand, heart, shopping bag)
+            const iconsList = document.createElement('ul');
+            iconsList.classList.add('icons', 'd-flex', 'align-items-center', 'justify-content-center', 'list-unstyled');
+
+            // Expand Icon with click event to redirect to product_view.html
+            const expandIcon = createIcon('fas fa-expand-arrows-alt');
+            expandIcon.addEventListener('click', () => {
+                window.location.href = `src/product_view.html?id=${productId}`;
+            });
+            iconsList.appendChild(expandIcon);
+
+            const heartIcon = createIcon('far fa-heart');
+            const shoppingBagIcon = createIcon('fas fa-shopping-bag');
+            iconsList.appendChild(heartIcon);
+            iconsList.appendChild(shoppingBagIcon);
+            productCard.appendChild(iconsList);
+
+            // Tag (assuming you have a tag property in productData)
+            if (productData.tag) {
+                const tag = document.createElement('div');
+                tag.classList.add('tag');
+                tag.textContent = productData.tag;
+                productCard.appendChild(tag);
+            }
+
+            // Title
+            const title = document.createElement('div');
+            title.classList.add('title');
+            title.textContent = productData.name;
+            productCard.appendChild(title);
+
+            // Star rating (assuming you want a fixed rating for all products)
+            const starRating = document.createElement('div');
+            starRating.classList.add('star-rating', 'd-flex', 'align-content-center', 'justify-content-center');
+            for (let i = 0; i < 5; i++) {
+                const starIcon = document.createElement('span');
+                starIcon.classList.add('fas', 'fa-star');
+                starRating.appendChild(starIcon);
+            }
+            productCard.appendChild(starRating);
+
+            // Price
+            const price = document.createElement('div');
+            price.classList.add('price');
+            price.textContent = '$ ' + productData.price;
+            productCard.appendChild(price);
+
+            // Append product card to the container
+            productContainer.appendChild(productCard);
+        });
+    });
+}
+
+// Helper function to create icon elements
+function createIcon(className) {
+    const icon = document.createElement('li');
+    icon.className = className;
+    return icon;
+}
+
+// Call the function to display products
+displayProducts();
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+.product-image {
+    width: 100%; /* Make the image take the full width of its container */
+    height: auto; /* Maintain aspect ratio */
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out; /* Smooth transitions for hover effects */
+    border-radius: 10px; /* Rounded corners */
+    object-fit: cover; /* Ensures the image covers the entire area without distortion */
+}
+
+.product-item {
+    position: relative;
+    overflow: hidden; /* Hide any overflow content */
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 15px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.523); /* Light shadow for a subtle 3D effect */
+    transition: transform 0.3s ease-in-out;
+    margin-bottom: 20px; /* Default gap between containers */
+    margin-right: 20px; /* Add margin on the right for a gap between the cards on larger screens */
+}
+
+.product-item:hover .product-image {
+    transform: scale(1.05); /* Slight zoom-in on hover */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15); /* Enhance the shadow effect on hover */
+}
+
+.product-item:hover {
+    transform: translateY(-5px); /* Elevate the card on hover */
+}
+
+.icons {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 10px;
+    z-index: 1; /* Make sure the icons are above the image */
+}
+
+.icons li {
+    color: #fff;
+    background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent background for the icons */
+    padding: 8px;
+    border-radius: 50%;
+    transition: background-color 0.3s;
+}
+
+.icons li:hover {
+    background-color: rgba(0, 0, 0, 0.9);
+}
+
+.title {
+    margin-top: 15px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #333;
+    text-align: center;
+}
+
+.star-rating {
+    margin-top: 10px;
+    color: #FFD700; /* Gold color for the stars */
+}
+
+.price {
+    margin-top: 10px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #E53935; /* Red color for price */
+    text-align: center;
+}
+
+.tag {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background-color: #E53935; /* Red color for the tag */
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    z-index: 1;
+}
+
+@media (max-width: 768px) {
+    .product-item {
+        width: 90%; /* Set width to 90% to create space on the sides */
+        margin: 20px auto; /* Center the item and create gaps on both sides */
+    }
+}
