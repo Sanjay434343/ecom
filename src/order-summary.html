@@ -3,252 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Summary</title>
-    <link rel="stylesheet" href="../styles/summary.css">
+    <title>Checkout</title>
+    <link rel="stylesheet" href="../styles/cart.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
-    <style>
-        /* Styles for the modal */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.5);
-            padding-top: 60px;
-        }
-        .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 20px;
-            border-radius: 10px;
-            width: 80%;
-            max-width: 500px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            text-align: center;
-        }
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 24px;
-            font-weight: bold;
-        }
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        .progress-bar-container {
-            margin-top: 20px;
-            position: relative;
-        }
-        .progress-bar {
-            width: 0;
-            height: 8px;
-            background-color: #4caf50;
-            border-radius: 4px;
-            transition: width 0.5s ease;
-        }
-        .progress-text {
-            margin-top: 10px;
-            font-size: 16px;
-            color: #333;
-        }
-        .success-message {
-            display: none;
-            margin-top: 20px;
-            font-size: 18px;
-            color: #4caf50;
-        }
-    </style>
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
-        import { getDatabase, ref as dbRef, set } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js';
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyC3WxZBaNJoZA2p7oe6ihTJCFOE6Y0U_7Q",
-            authDomain: "dropshipping-98eb5.firebaseapp.com",
-            projectId: "dropshipping-98eb5",
-            storageBucket: "dropshipping-98eb5.appspot.com",
-            messagingSenderId: "904925867242",
-            appId: "1:904925867242:web:af0abda866826e92f8fb93",
-            measurementId: "G-BVZR8HY1SR"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const orderData = JSON.parse(localStorage.getItem('orderData'));
-
-            if (orderData) {
-                // Display order summary
-                document.getElementById('summary-email').textContent = `Email: ${orderData.contactInfo.email}`;
-                document.getElementById('summary-phone').textContent = `Phone: ${orderData.contactInfo.phone}`;
-                document.getElementById('summary-name').textContent = `Name: ${orderData.shippingAddress.name}`;
-                document.getElementById('summary-address').textContent = `Address: ${orderData.shippingAddress.address}`;
-                document.getElementById('summary-landmark').textContent = `Landmark: ${orderData.shippingAddress.landmark}`;
-                document.getElementById('summary-city').textContent = `City: ${orderData.shippingAddress.city}`;
-                document.getElementById('summary-country').textContent = `Country: ${orderData.shippingAddress.country}`;
-                document.getElementById('summary-state').textContent = `State: ${orderData.shippingAddress.state}`;
-                document.getElementById('summary-postal').textContent = `Postal Code: ${orderData.shippingAddress.postalCode}`;
-
-                // Display cart items
-                const cartContainer = document.getElementById('summary-cart');
-                let totalCost = 0;
-
-                orderData.cart.forEach(item => {
-                    const cartItem = document.createElement('div');
-                    cartItem.innerHTML = `
-                        <div class="card">
-                            <div class="card-name">${item.name}</div>
-                            <div class="card-price">$${item.price} x ${item.quantity}</div>
-                        </div>
-                    `;
-                    cartContainer.appendChild(cartItem);
-                    totalCost += item.price * item.quantity;
-                });
-
-                document.getElementById('summary-total').textContent = `$${totalCost.toFixed(2)}`;
-
-                const upiId = 'mk5383511@oksbi'; // Replace with your actual UPI ID
-                const upiUrl = `upi://pay?pa=${upiId}&pn=Your%20Name&am=${totalCost.toFixed(2)}&cu=INR`;
-
-                $('#qr-code').qrcode({
-                    text: upiUrl,
-                    width: 128,
-                    height: 128
-                });
-
-                document.getElementById('upload-proof').addEventListener('click', async function() {
-                    const fileInput = document.getElementById('payment-proof');
-                    const file = fileInput.files[0];
-
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onloadend = async function () {
-                            const base64String = reader.result.split(',')[1];
-                            const base64Data = `data:${file.type};base64,${base64String}`;
-                            const orderId = Date.now();
-                            const updatedOrderData = { ...orderData, paymentProofBase64: base64Data };
-
-                            // Open the modal
-                            document.getElementById('progress-modal').style.display = 'block';
-                            document.getElementById('progress-text').textContent = 'Uploading...';
-
-                            try {
-                                // Simulate uploading progress
-                                let progress = 0;
-                                const progressInterval = setInterval(() => {
-                                    progress += 10;
-                                    if (progress >= 100) {
-                                        clearInterval(progressInterval);
-                                        document.getElementById('progress-text').textContent = 'Upload Complete!';
-                                        document.querySelector('.success-message').style.display = 'block';
-                                        setTimeout(() => {
-                                            document.getElementById('progress-modal').style.display = 'none';
-                                            // Remove items from cart and clear local storage
-                                            document.getElementById('summary-cart').innerHTML = '';
-                                            localStorage.removeItem('orderData');
-                                            // Redirect to success page
-                                            window.location.href = 'success.html';
-                                        }, 2000);
-                                    }
-                                    document.querySelector('.progress-bar').style.width = `${progress}%`;
-                                }, 500);
-
-                                await set(dbRef(database, 'orders/' + orderId), updatedOrderData);
-                            } catch (error) {
-                                console.error('Error uploading payment proof or order details: ', error);
-                                document.getElementById('progress-text').textContent = 'Failed to upload. Please try again.';
-                                setTimeout(() => {
-                                    document.getElementById('progress-modal').style.display = 'none';
-                                }, 2000);
-                            }
-                        };
-                        reader.readAsDataURL(file);
-                    } else {
-                        alert('Please select an image to upload.');
-                    }
-                });
-
-                // Modal close event
-                document.querySelector('.close').addEventListener('click', function() {
-                    document.getElementById('progress-modal').style.display = 'none';
-                });
-
-                window.onclick = function(event) {
-                    if (event.target == document.getElementById('progress-modal')) {
-                        document.getElementById('progress-modal').style.display = 'none';
-                    }
-                };
-            } else {
-                document.body.innerHTML = '<p>No order data found.</p>';
-            }
-        });
-    </script>
 </head>
 <body>
     <header>
-        <h3>Order Summary</h3>
+        <h3>Checkout</h3>
     </header>
 
     <main>
-        <section class="order-summary">
-            <div class="contact">
-                <h3>Contact Information</h3>
-                <p id="summary-email"></p>
-                <p id="summary-phone"></p>
-            </div>
+        <!-- Checkout Form -->
+        <section class="checkout-form">
+            <form id="checkout-form">
+                <h6>Contact information</h6>
+                <div class="form-control">
+                    <label for="checkout-email">E-mail</label>
+                    <div>
+                        <span class="fa fa-envelope"></span>
+                        <input type="email" id="checkout-email" name="checkout-email" placeholder="Enter your email...">
+                    </div>
+                </div>
+                <div class="form-control">
+                    <label for="checkout-phone">Phone</label>
+                    <div>
+                        <span class="fa fa-phone"></span>
+                        <input type="tel" name="checkout-phone" id="checkout-phone" placeholder="Enter your phone...">
+                    </div>
+                </div>
+                <br>
+                <h6>Shipping address</h6>
+                <div class="form-control">
+                    <label for="checkout-name">Full name</label>
+                    <div>
+                        <span class="fa fa-user-circle"></span>
+                        <input type="text" id="checkout-name" name="checkout-name" placeholder="Enter your name...">
+                    </div>
+                </div>
+                <div class="form-control">
+                    <label for="checkout-address">Address</label>
+                    <div>
+                        <span class="fa fa-home"></span>
+                        <input type="text" name="checkout-address" id="checkout-address" placeholder="Your address...">
+                    </div>
+                </div>
+                <div class="form-control">
+                    <label for="checkout-Landmark">Landmark</label>
+                    <div>
+                        <span class="fa fa-home"></span>
+                        <input type="text" name="checkout-Landmark" id="checkout-Landmark" placeholder="Your Landmark...">
+                    </div>
+                </div>
+                <div class="form-control">
+                    <label for="checkout-city">City</label>
+                    <div>
+                        <span class="fa fa-building"></span>
+                        <input type="text" name="checkout-city" id="checkout-city" placeholder="Your city...">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="form-control">
+                        <label for="checkout-country">Country</label>
+                        <div>
+                            <span class="fa fa-globe"></span>
+                            <input type="text" name="checkout-country" id="checkout-country" placeholder="Your country..." list="country-list">
+                            <datalist id="country-list">
+                                <option value="India"></option>
+                            </datalist>
+                        </div>
+                    </div>
+                    <div class="form-control">
+                        <label for="checkout-state">State</label>
+                        <div>
+                            <span class="fa fa-globe"></span>
+                            <input type="text" name="checkout-state" id="checkout-state" placeholder="Your state..." list="state-list">
+                            <datalist id="state-list">
+                                <option value="Tamil Nadu"></option>
+                            </datalist>
+                        </div>
+                    </div>
+                    <div class="form-control">
+                        <label for="checkout-postal">Postal code</label>
+                        <div>
+                            <span class="fa fa-archive"></span>
+                            <input type="text" name="checkout-postal" id="checkout-postal" placeholder="Your postal code...">
+                        </div>
+                    </div>
+                </div>
+             
+                <div class="form-control-btn">
+                    <button type="submit">Continue</button>
+                </div>
+            </form>
+        </section>
 
-            <div class="address">
-                <h3>Shipping Address</h3>
-                <p id="summary-name"></p>
-                <p id="summary-address"></p>
-                <p id="summary-landmark"></p>
-                <p id="summary-city"></p>
-                <p id="summary-country"></p>
-                <p id="summary-state"></p>
-                <p id="summary-postal"></p>
-            </div>
-
-            <div class="cart">
-                <h3>Cart Items</h3>
-                <div id="summary-cart"></div>
-                
-                <h6>Total Cost</h6>
-                <p id="summary-total"></p>
-            </div>
-
-            <div class="qr-code">
-                <h3>QR Code for UPI Payment</h3>
-                <div id="qr-code"></div>
-            </div>
-
-            <div class="upload-section">
-                <label for="payment-proof" class="upload-button">Choose Payment Proof</label>
-
-                <input type="file" id="payment-proof" accept="image/*">
-                <button id="upload-proof">Upload Payment Proof</button>
+        <!-- Checkout Details -->
+        <section class="checkout-details">
+            <div class="checkout-details-inner">
+                <div id="cart-container" class="checkout-lists">
+                    <!-- Cart items will be dynamically inserted here -->
+                </div>
+                <div class="checkout-shipping">
+                    <h6>Shipping</h6>
+                    <p id="shipping-cost">$5.00</p>
+                </div>
+                <div class="checkout-total">
+                    <h6>Total</h6>
+                    <p id="total-cost">$0.00</p>
+                </div>
             </div>
         </section>
 
-        <!-- Modal -->
-        <div id="progress-modal" class="modal">
+        <div id="qr-modal" class="modal">
             <div class="modal-content">
-                <span class="close">&times;</span>
-                <div class="progress-bar-container">
-                    <div class="progress-bar"></div>
-                </div>
-                <div class="progress-text" id="progress-text">Uploading...</div>
-                <div class="success-message">Payment proof uploaded successfully!</div>
+                <span class="close-button">&times;</span>
+                <h6>QR Code</h6>
+                <div id="qr-code"></div>
+                <input type="file" id="image-input" accept="image/*">
+                <button id="confirm-order">Confirm Order</button>
             </div>
         </div>
     </main>
+
+    <footer></footer>
+
+    <script src="../javascript/cart.js"></script>
+    <script src="../javascript/qr_gen.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-database.js"></script>
 </body>
 </html>

@@ -112,7 +112,7 @@ h3{
 }
 
 /* Style for the custom file input label */
-.file-upload-label {
+.upload-button {
     display: inline-block;
     padding: 10px 10px;
     font-size: 16px;
@@ -124,7 +124,7 @@ h3{
     transition: background-color 0.3s, border-color 0.3s;
 }
 
-.file-upload-label:hover {
+.upload-button:hover {
     background-color: #f6f6f6;
     border-color: #0056b3;
 }

@@ -2,8 +2,6 @@ document.addEventListener('DOMContentLoaded', function() {
     renderCart();
 
     const form = document.getElementById('checkout-form');
-    const continueButton = document.getElementById('continue-button');
-    let totalCost = 0;
 
     // Handle form submission
     form.addEventListener('submit', function(event) {
@@ -15,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Store form data and cart data in local storage
         const cart = JSON.parse(localStorage.getItem('cart')) || [];
-        totalCost = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        const totalCost = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
         const orderData = {
             contactInfo: {
@@ -74,6 +72,9 @@ function renderCart() {
                     <span>${item.quantity}</span>
                     <button data-id="${item.id}" class="increase-quantity">+</button>
                 </div>
+                <button data-id="${item.id}" class="remove-item"><span class="material-symbols-outlined">
+delete
+</span></button>
             </div>
         `;
 
@@ -90,6 +91,9 @@ function renderCart() {
     document.querySelectorAll('.increase-quantity').forEach(button => {
         button.addEventListener('click', () => updateQuantity(button, 1));
     });
+    document.querySelectorAll('.remove-item').forEach(button => {
+        button.addEventListener('click', () => removeItem(button));
+    });
 }
 
 function updateQuantity(button, change) {
@@ -102,6 +106,16 @@ function updateQuantity(button, change) {
         }
         return item;
     });
+
+    localStorage.setItem('cart', JSON.stringify(cart));
+    renderCart();
+}
+
+function removeItem(button) {
+    const productId = button.getAttribute('data-id');
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+    cart = cart.filter(item => item.id !== productId);
 
     localStorage.setItem('cart', JSON.stringify(cart));
     renderCart();
