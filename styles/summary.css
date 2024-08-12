@@ -40,7 +40,7 @@ p {
     margin: 5px 0;
 }
 
-.card {
+.cart {
     background-color: #f9f9f9;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -48,6 +48,13 @@ p {
     padding: 10px;
 }
 
+.card {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin: 10px 0;
+    padding: 10px;
+}
 .card-name {
     font-weight: bold;
 }
@@ -59,10 +66,92 @@ p {
 #qr-code {
     margin-top: 20px;
     text-align: center;
+    border: 1px solid #ddd;
+    padding: 20px 10px;
 }
 
 #summary-total {
     font-size: 1.2em;
     font-weight: bold;
     color: #d9534f;
+    margin-top: -20px;
+}
+
+.contact{
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 15px 15px;
+    border-radius: 10px;
+}
+
+.address{
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 15px 15px;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+h3{
+    margin-bottom: 10px;
+    font-size: 15px;
+    font-weight: 1000;
+}
+
+/* Container for the file input and button */
+.file-upload-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px;
+}
+
+/* Style for the file input */
+#payment-proof {
+    display: none; /* Hide the default file input */
+}
+
+/* Style for the custom file input label */
+.file-upload-label {
+    display: inline-block;
+    padding: 10px 10px;
+    font-size: 16px;
+    color: #000000;
+    background-color: #b7b6b600;
+    border: 1px solid #010101;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.file-upload-label:hover {
+    background-color: #f6f6f6;
+    border-color: #0056b3;
+}
+
+/* Style for the upload button */
+#upload-proof {
+    
+    display: inline-block;
+    padding: 10px 10px;
+    font-size: 16px;
+    color: #000000;
+    background-color: #b7b6b600;
+    border: 1px solid #010101;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s;
+    margin-top: 5px;
+}
+
+#upload-proof:hover {
+    background-color: #dfffe6;
+    border-color: #000000;
+}
+
+/* Make sure the input is properly aligned with the button */
+.file-upload-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }

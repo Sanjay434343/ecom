@@ -4,16 +4,72 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Summary</title>
-    <link rel="stylesheet" href="../styles/cart.css">
+    <link rel="stylesheet" href="../styles/summary.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+    <style>
+        /* Styles for the modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 500px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .progress-bar-container {
+            margin-top: 20px;
+            position: relative;
+        }
+        .progress-bar {
+            width: 0;
+            height: 8px;
+            background-color: #4caf50;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        .progress-text {
+            margin-top: 10px;
+            font-size: 16px;
+            color: #333;
+        }
+        .success-message {
+            display: none;
+            margin-top: 20px;
+            font-size: 18px;
+            color: #4caf50;
+        }
+    </style>
     <script type="module">
-        // Import Firebase modules
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
-        import { getStorage, ref, uploadString, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js';
         import { getDatabase, ref as dbRef, set } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js';
 
-        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyC3WxZBaNJoZA2p7oe6ihTJCFOE6Y0U_7Q",
             authDomain: "dropshipping-98eb5.firebaseapp.com",
@@ -24,15 +80,14 @@
             measurementId: "G-BVZR8HY1SR"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        const storage = getStorage(app);
         const database = getDatabase(app);
 
         document.addEventListener('DOMContentLoaded', function() {
             const orderData = JSON.parse(localStorage.getItem('orderData'));
 
             if (orderData) {
+                // Display order summary
                 document.getElementById('summary-email').textContent = `Email: ${orderData.contactInfo.email}`;
                 document.getElementById('summary-phone').textContent = `Phone: ${orderData.contactInfo.phone}`;
                 document.getElementById('summary-name').textContent = `Name: ${orderData.shippingAddress.name}`;
@@ -43,6 +98,7 @@
                 document.getElementById('summary-state').textContent = `State: ${orderData.shippingAddress.state}`;
                 document.getElementById('summary-postal').textContent = `Postal Code: ${orderData.shippingAddress.postalCode}`;
 
+                // Display cart items
                 const cartContainer = document.getElementById('summary-cart');
                 let totalCost = 0;
 
@@ -60,7 +116,6 @@
 
                 document.getElementById('summary-total').textContent = `$${totalCost.toFixed(2)}`;
 
-                // Generate QR code
                 const upiId = 'mk5383511@oksbi'; // Replace with your actual UPI ID
                 const upiUrl = `upi://pay?pa=${upiId}&pn=Your%20Name&am=${totalCost.toFixed(2)}&cu=INR`;
 
@@ -70,7 +125,6 @@
                     height: 128
                 });
 
-                // Handle image upload and conversion to Base64
                 document.getElementById('upload-proof').addEventListener('click', async function() {
                     const fileInput = document.getElementById('payment-proof');
                     const file = fileInput.files[0];
@@ -79,22 +133,42 @@
                         const reader = new FileReader();
                         reader.onloadend = async function () {
                             const base64String = reader.result.split(',')[1];
-                            const storageRefPath = `orders/${Date.now()}/payment-proof.png`;
-                            const storageRef = ref(storage, storageRefPath);
+                            const base64Data = `data:${file.type};base64,${base64String}`;
+                            const orderId = Date.now();
+                            const updatedOrderData = { ...orderData, paymentProofBase64: base64Data };
+
+                            // Open the modal
+                            document.getElementById('progress-modal').style.display = 'block';
+                            document.getElementById('progress-text').textContent = 'Uploading...';
 
                             try {
-                                await uploadString(storageRef, base64String, 'base64', { contentType: file.type });
-                                const url = await getDownloadURL(storageRef);
-
-                                const orderId = Date.now();
-                                const updatedOrderData = { ...orderData, paymentProofUrl: url };
+                                // Simulate uploading progress
+                                let progress = 0;
+                                const progressInterval = setInterval(() => {
+                                    progress += 10;
+                                    if (progress >= 100) {
+                                        clearInterval(progressInterval);
+                                        document.getElementById('progress-text').textContent = 'Upload Complete!';
+                                        document.querySelector('.success-message').style.display = 'block';
+                                        setTimeout(() => {
+                                            document.getElementById('progress-modal').style.display = 'none';
+                                            // Remove items from cart and clear local storage
+                                            document.getElementById('summary-cart').innerHTML = '';
+                                            localStorage.removeItem('orderData');
+                                            // Redirect to success page
+                                            window.location.href = 'success.html';
+                                        }, 2000);
+                                    }
+                                    document.querySelector('.progress-bar').style.width = `${progress}%`;
+                                }, 500);
 
                                 await set(dbRef(database, 'orders/' + orderId), updatedOrderData);
-                                alert('Order details and proof uploaded successfully!');
-                                localStorage.removeItem('orderData');
                             } catch (error) {
                                 console.error('Error uploading payment proof or order details: ', error);
-                                alert('Failed to upload payment proof. Please try again.');
+                                document.getElementById('progress-text').textContent = 'Failed to upload. Please try again.';
+                                setTimeout(() => {
+                                    document.getElementById('progress-modal').style.display = 'none';
+                                }, 2000);
                             }
                         };
                         reader.readAsDataURL(file);
@@ -102,6 +176,17 @@
                         alert('Please select an image to upload.');
                     }
                 });
+
+                // Modal close event
+                document.querySelector('.close').addEventListener('click', function() {
+                    document.getElementById('progress-modal').style.display = 'none';
+                });
+
+                window.onclick = function(event) {
+                    if (event.target == document.getElementById('progress-modal')) {
+                        document.getElementById('progress-modal').style.display = 'none';
+                    }
+                };
             } else {
                 document.body.innerHTML = '<p>No order data found.</p>';
             }
@@ -115,32 +200,55 @@
 
     <main>
         <section class="order-summary">
-            <h6>Contact Information</h6>
-            <p id="summary-email"></p>
-            <p id="summary-phone"></p>
-            
-            <h6>Shipping Address</h6>
-            <p id="summary-name"></p>
-            <p id="summary-address"></p>
-            <p id="summary-landmark"></p>
-            <p id="summary-city"></p>
-            <p id="summary-country"></p>
-            <p id="summary-state"></p>
-            <p id="summary-postal"></p>
-            
-            <h6>Cart Items</h6>
-            <div id="summary-cart"></div>
-            
-            <h6>Total Cost</h6>
-            <p id="summary-total"></p>
+            <div class="contact">
+                <h3>Contact Information</h3>
+                <p id="summary-email"></p>
+                <p id="summary-phone"></p>
+            </div>
 
-            <h6>QR Code for Payment</h6>
-            <div id="qr-code"></div>
-            
-            <h6>Upload Proof of Payment</h6>
-            <input type="file" id="payment-proof" accept="image/*">
-            <button id="upload-proof">Upload Proof</button>
+            <div class="address">
+                <h3>Shipping Address</h3>
+                <p id="summary-name"></p>
+                <p id="summary-address"></p>
+                <p id="summary-landmark"></p>
+                <p id="summary-city"></p>
+                <p id="summary-country"></p>
+                <p id="summary-state"></p>
+                <p id="summary-postal"></p>
+            </div>
+
+            <div class="cart">
+                <h3>Cart Items</h3>
+                <div id="summary-cart"></div>
+                
+                <h6>Total Cost</h6>
+                <p id="summary-total"></p>
+            </div>
+
+            <div class="qr-code">
+                <h3>QR Code for UPI Payment</h3>
+                <div id="qr-code"></div>
+            </div>
+
+            <div class="upload-section">
+                <label for="payment-proof" class="upload-button">Choose Payment Proof</label>
+
+                <input type="file" id="payment-proof" accept="image/*">
+                <button id="upload-proof">Upload Payment Proof</button>
+            </div>
         </section>
+
+        <!-- Modal -->
+        <div id="progress-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <div class="progress-bar-container">
+                    <div class="progress-bar"></div>
+                </div>
+                <div class="progress-text" id="progress-text">Uploading...</div>
+                <div class="success-message">Payment proof uploaded successfully!</div>
+            </div>
+        </div>
     </main>
 </body>
 </html>
