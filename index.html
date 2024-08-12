@@ -24,7 +24,7 @@
                         <a class="nav-link" href="#">Mobile Case</a>
                         <a class="nav-link" href="#">Charger Wires</a>
                         <a class="nav-link" href="#">Accessories</a>
-                        <a class="nav-link" href="\src\cart.html"><i class="fas fa-shopping-cart"></i></a> <!-- Shopping Cart Icon -->
+                        <a class="nav-link" href="\pages\cart.html"><i class="fas fa-shopping-cart"></i></a> <!-- Shopping Cart Icon -->
                     </div>
                 </div>
             </div>
@@ -84,7 +84,7 @@ function displayProducts() {
             // Expand Icon with click event to redirect to product_view.html
             const expandIcon = createIcon('fas fa-expand-arrows-alt');
             expandIcon.addEventListener('click', () => {
-                window.location.href = `src/product_view.html?id=${productId}`;
+                window.location.href = `pages/product_view.html?id=${productId}`;
             });
             iconsList.appendChild(expandIcon);
 
