@@ -84,7 +84,7 @@ function displayProducts() {
             // Expand Icon with click event to redirect to product_view.html
             const expandIcon = createIcon('fas fa-expand-arrows-alt');
             expandIcon.addEventListener('click', () => {
-                window.location.href = `pages/product_view.html?id=${productId}`;
+                window.location.href = `product_view.html?id=${productId}`;
             });
             iconsList.appendChild(expandIcon);
 
