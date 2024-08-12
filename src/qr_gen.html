@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Generator</title>
+    <link rel="stylesheet" href="styles/qr_gen.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-qrcode/1.0/jquery.qrcode.min.js"></script>
+</head>
+<body>
+    <header>
+        <h3>Generate Payment QR Code</h3>
+    </header>
+
+    <main>
+        <section class="qr-section">
+            <h6>Payment Details</h6>
+            <div id="qrcode"></div>
+            <p id="amount-display"></p>
+        </section>
+
+        <section class="image-upload-section">
+            <h6>Upload Your Image</h6>
+            <input type="file" id="image-upload" accept="image/*">
+        </section>
+
+        <section class="order-details">
+            <h6>Order Details</h6>
+            <form id="order-form">
+                <input type="hidden" id="order-amount" name="amount">
+                <input type="hidden" id="order-quantity" name="quantity">
+                <input type="hidden" id="order-address" name="address">
+                <button type="submit">Submit Order</button>
+            </form>
+        </section>
+    </main>
+
+    <footer></footer>
+
+    <script src="../javascript/qr_gen.js"></script>
+</body>
+</html>
