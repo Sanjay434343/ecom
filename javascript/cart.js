@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem('orderData', JSON.stringify(orderData));
 
         // Redirect to the summary page or display stored details
-        window.location.href = 'summary.html'; // Or use another method to display the order details
+        window.location.href = 'src/summary.html'; // Or use another method to display the order details
     });
 });
 
