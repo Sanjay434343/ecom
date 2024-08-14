@@ -1,562 +1,202 @@
-<<<<<<< HEAD
-const sign_in_btn = document.querySelector("#sign-in-btn");
-const sign_up_btn = document.querySelector("#sign-up-btn");
-const container = document.querySelector(".container");
-
-sign_up_btn.addEventListener("click", () => {
-  container.classList.add("sign-up-mode");
-});
-
-sign_in_btn.addEventListener("click", () => {
-  container.classList.remove("sign-up-mode");
-});
-
-const htmlEl = document.getElementsByTagName("html")[0];
-const currentTheme = localStorage.getItem("theme")
-  ? localStorage.getItem("theme")
-  : null;
-if (currentTheme) {
-  htmlEl.dataset.theme = currentTheme;
-}
-const toggleTheme = (theme) => {
-  htmlEl.dataset.theme = theme;
-  localStorage.setItem("theme", theme);
-};
-
-const togglePassword = document.querySelector("#togglePassword");
-const password = document.querySelector("#id_password");
-
-togglePassword.addEventListener("click", function (e) {
-  const type =
-    password.getAttribute("type") === "password" ? "text" : "password";
-  password.setAttribute("type", type);
-  this.classList.toggle("fa-eye-slash");
-});
-
-const toggleReg = document.querySelector("#toggleReg");
-const pass = document.querySelector("#id_reg");
-
-toggleReg.addEventListener("click", function (e) {
-  const type = pass.getAttribute("type") === "password" ? "text" : "password";
-  pass.setAttribute("type", type);
-  this.classList.toggle("fa-eye-slash");
-});
-
-// KEYBOARD
-
-const Keyboard = {
-  elements: {
-    main: null,
-    keysContainer: null,
-    keys: []
-  },
-
-  eventHandlers: {
-    oninput: null,
-    onclose: null
-  },
-
-  properties: {
-    value: "",
-    capsLock: false
-  },
-
-  init() {
-    // Create main elements
-    this.elements.main = document.createElement("div");
-    this.elements.keysContainer = document.createElement("div");
-
-    // Setup main elements
-    this.elements.main.classList.add("keyboard", "keyboard--hidden");
-    this.elements.keysContainer.classList.add("keyboard__keys");
-    this.elements.keysContainer.appendChild(this._createKeys());
-
-    this.elements.keys = this.elements.keysContainer.querySelectorAll(
-      ".keyboard__key"
-    );
-
-    // Add to DOM
-    this.elements.main.appendChild(this.elements.keysContainer);
-    document.body.appendChild(this.elements.main);
-
-    // Automatically use keyboard for elements with .use-keyboard-input
-    document.querySelectorAll(".use-keyboard-input").forEach((element) => {
-      element.addEventListener("focus", () => {
-        this.open(element.value, (currentValue) => {
-          element.value = currentValue;
-        });
-      });
-    });
-  },
-
-  _createKeys() {
-    const fragment = document.createDocumentFragment();
-    const keyLayout = [
-      "1",
-      "2",
-      "3",
-      "4",
-      "5",
-      "6",
-      "7",
-      "8",
-      "9",
-      "0",
-      "backspace",
-      "q",
-      "w",
-      "e",
-      "r",
-      "t",
-      "y",
-      "u",
-      "i",
-      "o",
-      "p",
-      "caps",
-      "a",
-      "s",
-      "d",
-      "f",
-      "g",
-      "h",
-      "j",
-      "k",
-      "l",
-      "enter",
-      "done",
-      "z",
-      "x",
-      "c",
-      "v",
-      "b",
-      "n",
-      "m",
-      ",",
-      ".",
-      "?",
-      "space"
-    ];
-
-    // Creates HTML for an icon
-    const createIconHTML = (icon_name) => {
-      return <i class="material-icons">${icon_name}</i>;
-    };
-
-    keyLayout.forEach((key) => {
-      const keyElement = document.createElement("button");
-      const insertLineBreak =
-        ["backspace", "p", "enter", "?"].indexOf(key) !== -1;
-
-      // Add attributes/classes
-      keyElement.setAttribute("type", "button");
-      keyElement.classList.add("keyboard__key");
-
-      switch (key) {
-        case "backspace":
-          keyElement.classList.add("keyboard__key--wide");
-          keyElement.innerHTML = createIconHTML("⌫");
-
-          keyElement.addEventListener("click", () => {
-            this.properties.value = this.properties.value.substring(
-              0,
-              this.properties.value.length - 1
-            );
-            this._triggerEvent("oninput");
-          });
-
-          break;
-
-        case "caps":
-          keyElement.classList.add(
-            "keyboard__key--wide",
-            "keyboard__key--activatable"
-          );
-          keyElement.innerHTML = createIconHTML("⇪");
-
-          keyElement.addEventListener("click", () => {
-            this._toggleCapsLock();
-            keyElement.classList.toggle(
-              "keyboard__key--active",
-              this.properties.capsLock
-            );
-          });
-
-          break;
-
-        case "enter":
-          keyElement.classList.add("keyboard__key--wide");
-          keyElement.innerHTML = createIconHTML("↵");
-
-          keyElement.addEventListener("click", () => {
-            this.properties.value += "\n";
-            this._triggerEvent("oninput");
-          });
-
-          break;
-
-        case "space":
-          keyElement.classList.add("keyboard__key--extra-wide");
-          keyElement.innerHTML = createIconHTML("⎵");
-
-          keyElement.addEventListener("click", () => {
-            this.properties.value += " ";
-            this._triggerEvent("oninput");
-          });
-
-          break;
-
-        case "done":
-          keyElement.classList.add(
-            "keyboard__key--wide",
-            "keyboard__key--dark"
-          );
-          keyElement.innerHTML = createIconHTML("✓");
-
-          keyElement.addEventListener("click", () => {
-            this.close();
-            this._triggerEvent("onclose");
-          });
-
-          break;
-
-        default:
-          keyElement.textContent = key.toLowerCase();
-
-          keyElement.addEventListener("click", () => {
-            this.properties.value += this.properties.capsLock
-              ? key.toUpperCase()
-              : key.toLowerCase();
-            this._triggerEvent("oninput");
-          });
-
-          break;
-      }
-
-      fragment.appendChild(keyElement);
-
-      if (insertLineBreak) {
-        fragment.appendChild(document.createElement("br"));
-      }
-    });
-
-    return fragment;
-  },
-
-  _triggerEvent(handlerName) {
-    if (typeof this.eventHandlers[handlerName] == "function") {
-      this.eventHandlers[handlerName](this.properties.value);
-    }
-  },
-
-  _toggleCapsLock() {
-    this.properties.capsLock = !this.properties.capsLock;
-
-    for (const key of this.elements.keys) {
-      if (key.childElementCount === 0) {
-        key.textContent = this.properties.capsLock
-          ? key.textContent.toUpperCase()
-          : key.textContent.toLowerCase();
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+  <script src="https://unpkg.com/unlazy@0.11.3/dist/unlazy.with-hashing.iife.js" defer init></script>
+  <script type="text/javascript">
+    window.tailwind.config = {
+      darkMode: ['class'],
+      theme: {
+        extend: {
+          colors: {
+            border: 'hsl(var(--border))',
+            input: 'hsl(var(--input))',
+            ring: 'hsl(var(--ring))',
+            background: 'hsl(var(--background))',
+            foreground: 'hsl(var(--foreground))',
+            primary: {
+              DEFAULT: 'hsl(var(--primary))',
+              foreground: 'hsl(var(--primary-foreground))'
+            },
+            secondary: {
+              DEFAULT: 'hsl(var(--secondary))',
+              foreground: 'hsl(var(--secondary-foreground))'
+            },
+            destructive: {
+              DEFAULT: 'hsl(var(--destructive))',
+              foreground: 'hsl(var(--destructive-foreground))'
+            },
+            muted: {
+              DEFAULT: 'hsl(var(--muted))',
+              foreground: 'hsl(var(--muted-foreground))'
+            },
+            accent: {
+              DEFAULT: 'hsl(var(--accent))',
+              foreground: 'hsl(var(--accent-foreground))'
+            },
+            popover: {
+              DEFAULT: 'hsl(var(--popover))',
+              foreground: 'hsl(var(--popover-foreground))'
+            },
+            card: {
+              DEFAULT: 'hsl(var(--card))',
+              foreground: 'hsl(var(--card-foreground))'
+            },
+          },
+        }
       }
     }
-  },
-
-  open(initialValue, oninput, onclose) {
-    this.properties.value = initialValue || "";
-    this.eventHandlers.oninput = oninput;
-    this.eventHandlers.onclose = onclose;
-    this.elements.main.classList.remove("keyboard--hidden");
-  },
-
-  close() {
-    this.properties.value = "";
-    this.eventHandlers.oninput = oninput;
-    this.eventHandlers.onclose = onclose;
-    this.elements.main.classList.add("keyboard--hidden");
-  }
-};
-
-window.addEventListener("DOMContentLoaded", function () {
-  Keyboard.init();
-=======
-const sign_in_btn = document.querySelector("#sign-in-btn");
-const sign_up_btn = document.querySelector("#sign-up-btn");
-const container = document.querySelector(".container");
-
-sign_up_btn.addEventListener("click", () => {
-  container.classList.add("sign-up-mode");
-});
-
-sign_in_btn.addEventListener("click", () => {
-  container.classList.remove("sign-up-mode");
-});
-
-const htmlEl = document.getElementsByTagName("html")[0];
-const currentTheme = localStorage.getItem("theme")
-  ? localStorage.getItem("theme")
-  : null;
-if (currentTheme) {
-  htmlEl.dataset.theme = currentTheme;
-}
-const toggleTheme = (theme) => {
-  htmlEl.dataset.theme = theme;
-  localStorage.setItem("theme", theme);
-};
-
-const togglePassword = document.querySelector("#togglePassword");
-const password = document.querySelector("#id_password");
-
-togglePassword.addEventListener("click", function (e) {
-  const type =
-    password.getAttribute("type") === "password" ? "text" : "password";
-  password.setAttribute("type", type);
-  this.classList.toggle("fa-eye-slash");
-});
-
-const toggleReg = document.querySelector("#toggleReg");
-const pass = document.querySelector("#id_reg");
-
-toggleReg.addEventListener("click", function (e) {
-  const type = pass.getAttribute("type") === "password" ? "text" : "password";
-  pass.setAttribute("type", type);
-  this.classList.toggle("fa-eye-slash");
-});
-
-// KEYBOARD
-
-const Keyboard = {
-  elements: {
-    main: null,
-    keysContainer: null,
-    keys: []
-  },
-
-  eventHandlers: {
-    oninput: null,
-    onclose: null
-  },
-
-  properties: {
-    value: "",
-    capsLock: false
-  },
-
-  init() {
-    // Create main elements
-    this.elements.main = document.createElement("div");
-    this.elements.keysContainer = document.createElement("div");
-
-    // Setup main elements
-    this.elements.main.classList.add("keyboard", "keyboard--hidden");
-    this.elements.keysContainer.classList.add("keyboard__keys");
-    this.elements.keysContainer.appendChild(this._createKeys());
-
-    this.elements.keys = this.elements.keysContainer.querySelectorAll(
-      ".keyboard__key"
-    );
-
-    // Add to DOM
-    this.elements.main.appendChild(this.elements.keysContainer);
-    document.body.appendChild(this.elements.main);
-
-    // Automatically use keyboard for elements with .use-keyboard-input
-    document.querySelectorAll(".use-keyboard-input").forEach((element) => {
-      element.addEventListener("focus", () => {
-        this.open(element.value, (currentValue) => {
-          element.value = currentValue;
-        });
-      });
-    });
-  },
-
-  _createKeys() {
-    const fragment = document.createDocumentFragment();
-    const keyLayout = [
-      "1",
-      "2",
-      "3",
-      "4",
-      "5",
-      "6",
-      "7",
-      "8",
-      "9",
-      "0",
-      "backspace",
-      "q",
-      "w",
-      "e",
-      "r",
-      "t",
-      "y",
-      "u",
-      "i",
-      "o",
-      "p",
-      "caps",
-      "a",
-      "s",
-      "d",
-      "f",
-      "g",
-      "h",
-      "j",
-      "k",
-      "l",
-      "enter",
-      "done",
-      "z",
-      "x",
-      "c",
-      "v",
-      "b",
-      "n",
-      "m",
-      ",",
-      ".",
-      "?",
-      "space"
-    ];
-
-    // Creates HTML for an icon
-    const createIconHTML = (icon_name) => {
-      return <i class="material-icons">${icon_name}</i>;
-    };
-
-    keyLayout.forEach((key) => {
-      const keyElement = document.createElement("button");
-      const insertLineBreak =
-        ["backspace", "p", "enter", "?"].indexOf(key) !== -1;
-
-      // Add attributes/classes
-      keyElement.setAttribute("type", "button");
-      keyElement.classList.add("keyboard__key");
-
-      switch (key) {
-        case "backspace":
-          keyElement.classList.add("keyboard__key--wide");
-          keyElement.innerHTML = createIconHTML("⌫");
-
-          keyElement.addEventListener("click", () => {
-            this.properties.value = this.properties.value.substring(
-              0,
-              this.properties.value.length - 1
-            );
-            this._triggerEvent("oninput");
-          });
-
-          break;
-
-        case "caps":
-          keyElement.classList.add(
-            "keyboard__key--wide",
-            "keyboard__key--activatable"
-          );
-          keyElement.innerHTML = createIconHTML("⇪");
-
-          keyElement.addEventListener("click", () => {
-            this._toggleCapsLock();
-            keyElement.classList.toggle(
-              "keyboard__key--active",
-              this.properties.capsLock
-            );
-          });
-
-          break;
-
-        case "enter":
-          keyElement.classList.add("keyboard__key--wide");
-          keyElement.innerHTML = createIconHTML("↵");
-
-          keyElement.addEventListener("click", () => {
-            this.properties.value += "\n";
-            this._triggerEvent("oninput");
-          });
-
-          break;
-
-        case "space":
-          keyElement.classList.add("keyboard__key--extra-wide");
-          keyElement.innerHTML = createIconHTML("⎵");
-
-          keyElement.addEventListener("click", () => {
-            this.properties.value += " ";
-            this._triggerEvent("oninput");
-          });
-
-          break;
-
-        case "done":
-          keyElement.classList.add(
-            "keyboard__key--wide",
-            "keyboard__key--dark"
-          );
-          keyElement.innerHTML = createIconHTML("✓");
-
-          keyElement.addEventListener("click", () => {
-            this.close();
-            this._triggerEvent("onclose");
-          });
-
-          break;
-
-        default:
-          keyElement.textContent = key.toLowerCase();
-
-          keyElement.addEventListener("click", () => {
-            this.properties.value += this.properties.capsLock
-              ? key.toUpperCase()
-              : key.toLowerCase();
-            this._triggerEvent("oninput");
-          });
-
-          break;
+  </script>
+  <style type="text/tailwindcss">
+    @layer base {
+      :root {
+        --background: 0 0% 100%;
+        --foreground: 240 10% 3.9%;
+        --card: 0 0% 100%;
+        --card-foreground: 240 10% 3.9%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 240 10% 3.9%;
+        --primary: 240 5.9% 10%;
+        --primary-foreground: 0 0% 98%;
+        --secondary: 240 4.8% 95.9%;
+        --secondary-foreground: 240 5.9% 10%;
+        --muted: 240 4.8% 95.9%;
+        --muted-foreground: 240 3.8% 46.1%;
+        --accent: 240 4.8% 95.9%;
+        --accent-foreground: 240 5.9% 10%;
+        --destructive: 0 84.2% 60.2%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 240 5.9% 90%;
+        --input: 240 5.9% 90%;
+        --ring: 240 5.9% 10%;
+        --radius: 0.5rem;
       }
-
-      fragment.appendChild(keyElement);
-
-      if (insertLineBreak) {
-        fragment.appendChild(document.createElement("br"));
-      }
-    });
-
-    return fragment;
-  },
-
-  _triggerEvent(handlerName) {
-    if (typeof this.eventHandlers[handlerName] == "function") {
-      this.eventHandlers[handlerName](this.properties.value);
-    }
-  },
-
-  _toggleCapsLock() {
-    this.properties.capsLock = !this.properties.capsLock;
-
-    for (const key of this.elements.keys) {
-      if (key.childElementCount === 0) {
-        key.textContent = this.properties.capsLock
-          ? key.textContent.toUpperCase()
-          : key.textContent.toLowerCase();
+      .dark {
+        --background: 240 10% 3.9%;
+        --foreground: 0 0% 98%;
+        --card: 240 10% 3.9%;
+        --card-foreground: 0 0% 98%;
+        --popover: 240 10% 3.9%;
+        --popover-foreground: 0 0% 98%;
+        --primary: 0 0% 98%;
+        --primary-foreground: 240 5.9% 10%;
+        --secondary: 240 3.7% 15.9%;
+        --secondary-foreground: 0 0% 98%;
+        --muted: 240 3.7% 15.9%;
+        --muted-foreground: 240 5% 64.9%;
+        --accent: 240 3.7% 15.9%;
+        --accent-foreground: 0 0% 98%;
+        --destructive: 0 62.8% 30.6%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 240 3.7% 15.9%;
+        --input: 240 3.7% 15.9%;
+        --ring: 240 4.9% 83.9%;
       }
     }
-  },
 
-  open(initialValue, oninput, onclose) {
-    this.properties.value = initialValue || "";
-    this.eventHandlers.oninput = oninput;
-    this.eventHandlers.onclose = onclose;
-    this.elements.main.classList.remove("keyboard--hidden");
-  },
+    .tit {
+      color: rgb(255, 255, 255);
+      font-weight: 1000;
+      font-size: 30px;
+    }
 
-  close() {
-    this.properties.value = "";
-    this.eventHandlers.oninput = oninput;
-    this.eventHandlers.onclose = onclose;
-    this.elements.main.classList.add("keyboard--hidden");
-  }
-};
+    /* Shimmer effect */
+    .shimmer {
+      background: linear-gradient(90deg, rgba(208, 208, 208, 0) 25%, rgba(255, 255, 255, 0.005) 50%, rgba(180, 180, 180, 0.1) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 4s infinite linear; /* Slower duration */
+    }
 
-window.addEventListener("DOMContentLoaded", function () {
-  Keyboard.init();
->>>>>>> c34c94570827cbe032b53a834d1b35cc29f97aff
-});
+    @keyframes shimmer {
+      0% {
+        background-position: -200% 0;
+      }
+      100% {
+        background-position: 200% 0;
+      }
+    }
+
+    /* Image and Card Styling */
+    .card-img {
+      height: 150px;
+      object-fit: contain;
+    }
+
+    .card {
+      padding: 16px;
+    }
+
+    .bg-card {
+      background-color: #f6f6f6;
+      border: 1px solid rgb(190, 190, 190);
+    }
+
+    /* Flexbox center */
+    .flex-center {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-background p-4 rounded-lg shadow-lg">
+    <div class="flex justify-between mb-4">
+      <button class="bg-primary text-primary-foreground rounded-full py-2 px-4 transition duration-300 hover:bg-primary/80">SANJAY</button>
+      <a class="bg-secondary text-secondary-foreground rounded-full py-2 px-4 transition duration-300 hover:bg-secondary/80" href="cart.html">Cart</a>
+    </div>
+
+    <div class="flex items-center mb-4">
+      <input type="text" placeholder="Search for laptops" class="border border-border rounded-lg p-2 flex-grow transition duration-300 focus:ring-2 focus:ring-ring" />
+    </div>
+
+    <div class="relative mb-4">
+      <img src="https://cdn.pixabay.com/photo/2022/07/19/22/11/wallpaper-7333087_1280.png" alt="Promotional Banner" class="rounded-lg w-full transition duration-300 hover:scale-105" />
+      <div class="absolute top-0 left-0 w-full h-full flex items-center justify-center">
+        <h1 class="text-primary-foreground p-2 rounded-lg tit">JACKPOT DAYS IS LIVE</h1>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-3 gap-4 mb-4">
+      <a href="categories/mobile_ace.html" class="bg-card rounded-lg p-4 shimmer transition duration-300 hover:shadow-lg card flex-center">
+        <img src="img/accesories.png" alt="Mobiles Accessories" class="card-img" />
+        <span class="text-muted-foreground mt-4">Mobiles Accessories</span>
+      </a>
+      <a href="categories/mobiles.html" class="bg-card rounded-lg p-4 shimmer transition duration-300 hover:shadow-lg card flex-center">
+        <img src="img/mobile.png" alt="Mobiles" class="card-img" />
+        <span class="text-muted-foreground mt-4">Mobiles</span>
+      </a>
+    </a> <a href="categories/shoes.html" class="bg-card rounded-lg p-4 shimmer transition duration-300 hover:shadow-lg card flex-center">
+      <img src="img/music.png" alt="Music" class="card-img" />
+      <span class="text-muted-foreground mt-4">Music</span>
+    </a>
+      <a href="categories/tshirt.html" class="bg-card rounded-lg p-4 shimmer transition duration-300 hover:shadow-lg card flex-center">
+        <img src="img/tshirt.png" alt="T-shirt Men" class="card-img" />
+        <span class="text-muted-foreground mt-4">T-shirt Men</span>
+      </a>
+      <a href="categories/w-tshirt.html" class="bg-card rounded-lg p-4 shimmer transition duration-300 hover:shadow-lg card flex-center">
+        <img src="img/w-tshirt.png" alt="T-shirt Women" class="card-img" />
+        <span class="text-muted-foreground mt-4">T-shirt Women</span>
+      </a>
+      <a href="categories/toys.html" class="bg-card rounded-lg p-4 shimmer transition duration-300 hover:shadow-lg card flex-center">
+        <img src="img/toys.png" alt="Toys" class="card-img" />
+        <span class="text-muted-foreground mt-4">Toys</span>
+      </a>
+      <a href="categories/shoes.html" class="bg-card rounded-lg p-4 shimmer transition duration-300 hover:shadow-lg card flex-center">
+        <img src="img/shoes.png" alt="Shoes" class="card-img" />
+        <span class="text-muted-foreground mt-4">Shoes</span>
+      </a>
+       <a href="categories/sports.html" class="bg-card rounded-lg p-4 shimmer transition duration-300 hover:shadow-lg card flex-center">
+        <img src="img/sports.png" alt="Sports" class="card-img" />
+        <span class="text-muted-foreground mt-4">Sports</span>
+      </a>
+    </a> <a href="categories/shoes.html" class="bg-card rounded-lg p-4 shimmer transition duration-300 hover:shadow-lg card flex-center">
+      <img src="img/tv.png" alt="Sports" class="card-img" />
+      <span class="text-muted-foreground mt-4">Sports</span>
+    </a>
+    </div>
+  </div>
+</body>
+</html>
