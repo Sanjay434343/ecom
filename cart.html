@@ -537,7 +537,7 @@ body {
         });
     
         totalCostElement.textContent = `$${totalCost.toFixed(2)}`;
-        shippingCostElement.textContent = `$5.00`;
+        shippingCostElement.textContent = `$50`;
     
         document.querySelectorAll('.decrease-quantity').forEach(button => {
             button.addEventListener('click', () => updateQuantity(button, -1));
