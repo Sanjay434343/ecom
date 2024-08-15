@@ -37,9 +37,8 @@ function displayProductDetails() {
             if (productData) {
                 // Update HTML elements with product data
                 document.getElementById('productName').textContent = productData.name || 'No Name';
-                document.getElementById('productTag').textContent = productData.tag || 'No Tag';
                 document.getElementById('productDescription').textContent = productData.description || 'No Description';
-                document.getElementById('productPrice').textContent = '$ ' + (productData.price || 'N/A');
+                document.getElementById('productPrice').textContent = '₹ ' + (productData.price || 'N/A');
                 document.getElementById('productOldPrice').textContent = productData.oldPrice ? '$ ' + productData.oldPrice : '';
 
                 // Update image source
@@ -50,7 +49,7 @@ function displayProductDetails() {
                 // Check if the image URL is valid
                 if (imageUrl) {
                     productImageMobile.src = imageUrl;
-                    productImageDesktop.srcset = imageUrl;
+                    productImageDesktop.src = imageUrl;
                 } else {
                     console.error('Invalid image URL:', imageUrl);
                 }
@@ -110,4 +109,3 @@ document.querySelector('.card__btn').addEventListener('click', addToCart);
 
 // Call the function to display the product details when the page loads
 displayProductDetails();
-x`x`
