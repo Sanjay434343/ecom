@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product View</title>
+    <link rel="stylesheet" href="../styles/product_view.css">
+</head>
+<body>
+    <main>
+        <div class="card">
+            <div class="card__img">
+                <picture>
+                    <source media="(min-width:600px)" id="productImageDesktop" srcset="">
+                    <img id="productImageMobile" src="" alt="Product Image">
+                </picture>
+            </div>
+            <div class="card__content">
+                <p id="productTag" class="card__tag"></p>
+                <h1 id="productName" class="card__title"></h1>
+                <p id="productDescription" class="card__desc"></p>
+                <div class="card__price">
+                    <h1 id="productPrice"></h1>
+                    <s id="productOldPrice"></s>
+                </div>
+                <button class="card__btn">
+                    <img src="https://rvs-product-preview-card-component.vercel.app/images/icon-cart.svg" alt="">
+                    Add to Cart
+                </button>
+                
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="../javascript/product_view.js"></script>
+</body>
+</html>
